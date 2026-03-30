@@ -1,0 +1,414 @@
+{
+  "name": "Edith",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        -288
+      ],
+      "id": "18cf75ac-fe7a-4445-898f-32c7cf4703a1",
+      "name": "Telegram Trigger",
+      "webhookId": "750f9d42-b636-434b-9593-2bebc2591ce5",
+      "credentials": {
+        "telegramApi": {
+          "id": "pSZH5c9Ve3sgrusv",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a personal AI assistant. Follow the rules below:\n\n- Use \"Schedule Meeting\" tool to schedule meeting in google calendar. You can extract the start time, end time, attendees, description and summary from user's message. Make sure to politely ask date, start time, end time (or duration) and attendees if the user has not mentioned already. The current time is {{ $now }}\n\n- Use \"Create Task\" tool to create tasks in the Google Task. Make sure you are extracting the task name and completion date from user's message.\n\n- Use \"Add Expense\" tool to add expense in the My expenses sheet. Make sure to extract the category, amount and date (date will be the same date of user's message) from user's message. The category of the expense should be among these options - Food, Grocery, Travel, Medical, Education, Utilities. You can mark the category as \"Others\" if it is not among the options above.\n\n-Use \"Get Expense\" tool to read the expense from my expenses sheet..Provide the user a daily summary of expense and total amount soent throgh \"Send Message in Telegram\"\n\n- Use \"Send Email\" tool to send emails based on user's message. Extract the recipient email address, subject, and message content from the user's request. If any information is missing, politely ask the user for it.\n\n- After completing task, use \"Send Message in Telegram\" node, to confirm the user that the task is completed. Do not add any other detail, just mention \"Done. Thank you!\"\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        400,
+        -288
+      ],
+      "id": "e96c0f09-8f0d-4a63-8544-260aab7e07a8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        -64
+      ],
+      "id": "38703975-3e07-4003-8083-a2aa124852c5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "h88tuKPWB1do5uGR",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Edith"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        -64
+      ],
+      "id": "d9e7079b-5ac1-4b57-8006-417343344709",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "shubhamkakde008@gmail.com",
+          "mode": "list",
+          "cachedResultName": "shubhamkakde008@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        -64
+      ],
+      "id": "21b1da92-1476-47fa-8205-67a3f75575a3",
+      "name": "Schedule Meeting",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "O603QmdC61y7zzQo",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "task": "MDc3NDA4MzcxNjQ4MTkwMTExNjg6MDow",
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}",
+        "additionalFields": {
+          "completed": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Completion_Date', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleTasksTool",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -64
+      ],
+      "id": "05a904db-1e37-4ab3-b9a1-b289301e5898",
+      "name": "Create Task",
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": "O6k8uhfeqoG2e37R",
+          "name": "Google Tasks OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_GrhXQlmPVJ4S1gXT2iLXIVuxYB0Jcxgr_pIasIrVz8",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_GrhXQlmPVJ4S1gXT2iLXIVuxYB0Jcxgr_pIasIrVz8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_GrhXQlmPVJ4S1gXT2iLXIVuxYB0Jcxgr_pIasIrVz8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Category": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Category', ``, 'string') }}",
+            "Amount": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Amount', ``, 'string') }}",
+            "Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        -64
+      ],
+      "id": "f291b724-d7c3-40c2-8fe2-ca9b12c8329c",
+      "name": "Add Expense",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rkRH6zFSZhNl6j7i",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1056,
+        -288
+      ],
+      "id": "9c94fe72-16c4-422a-bde1-19b0fde36ecc",
+      "name": "Send Message in Telegram",
+      "webhookId": "e0b28367-9fdf-4dc3-bc29-9955eebf1a78",
+      "credentials": {
+        "telegramApi": {
+          "id": "pSZH5c9Ve3sgrusv",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_GrhXQlmPVJ4S1gXT2iLXIVuxYB0Jcxgr_pIasIrVz8",
+          "mode": "list",
+          "cachedResultName": "Expense Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_GrhXQlmPVJ4S1gXT2iLXIVuxYB0Jcxgr_pIasIrVz8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_GrhXQlmPVJ4S1gXT2iLXIVuxYB0Jcxgr_pIasIrVz8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        -64
+      ],
+      "id": "58968fa5-0270-4d90-9fb5-43363d255b07",
+      "name": "Get Expense",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rkRH6zFSZhNl6j7i",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('recipient', 'Email address of the recipient') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('subject', 'Email subject') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message', 'Email message content') }}",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "id": "731c9116-3091-49ef-a4d5-7228f3e16c81",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        -64
+      ],
+      "webhookId": "126dee4e-2497-4cb5-b146-1b83a07f8f56",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HRK5gD5TmGBJulJF",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Message in Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Meeting": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Expense": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Expense": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bb98f1ef-9d30-4d6f-9cfa-027464a28625",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b765b73991ecdf1f4d97e8ef7f0d0e530f13b35760f9d56548c00383d15e54e4"
+  },
+  "id": "zu1WYDzD9X4GV2xz",
+  "tags": []
+}
